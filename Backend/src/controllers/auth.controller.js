@@ -1,57 +1,65 @@
 const userModel = require("../models/user.model")
 const jwt = require('jsonwebtoken')
-const crypto = require('crypto')
+// const crypto = require('crypto')
+const bcrypt = require('bcryptjs')
 
+async function registerController (req, res)  {
+    const {username, email, password,bio , profileImage} = req.body;
 
+    // const isUserExistsByEmail= await userModel.findOne({email});
+    // if(isUserExistsByEmail){
+    //     return res.status(409).json({message:"User already exists with this email"})
+    // }
 
-async function registerController (req, res){
-    const{ username, email,password} = req.body
+    // const isUserExistsByUsername= await userModel.findOne({username});
+    // if(isUserExistsByUsername){
+    //     return res.status(409).json({message:"User already exists with this username"})
+    // }
 
-    const user = await userModel.findOne({
+    const isUserExists = await userModel.findOne({
         $or:[
-            {username:username},
-            {email:email}
+            {email},
+            {username}
         ]
-    })
-
-    if(!user){
-        return res.status(401).json({
-            message:"user not found"
         })
-    }
-
-    const hash = crypto.createHash('sha256').update(password).digest("hex")
-
-    const isPasswordCorrect = hash == user.password
-    if(!isPasswordCorrect){
-        return res.status(409).json({
-            message:"password invalid "
-        })
+        if(isUserExists){
+            return res.status(409).json({
+                message:"User already exists " + (isUserExists.email === email ? "with this email" : "with this username")
+            })
         }
+        // const hash = crypto.createHash("sha256").update(password).digest("hex");
+        const hash = await bcrypt.hash(password,10)
 
-        token = jwt.sign({
-            id:user._id
-        },process.env.JWT_SECRET, {expiresIn:"1d"})
+        const user = await userModel.create({
+            username,
+            email,
+            password:hash,  
+            bio,
+            profileImage
+        })
 
-        res.cookie("token", token)
+        const token = jwt.sign({
+            id:user._id,
+            email:user.email
+        },process.env.JWT_SECRET,{
+            expiresIn:"1h"
+        })
 
-        res.status(200).json({
-            message:"logged in successfully",
+        res.cookie("token", token) 
+
+        res.status(201).json({
+            message:"User registered successfully",
             user:{
                 username:user.username,
                 email:user.email,
                 bio:user.bio,
                 profileImage:user.profileImage
-            }
+            },
+            token,
         })
 
 
-
-
-   
-    
-
-    }
+}
 
 async function loginController(req,res){
     const{ username, email,password} = req.body
@@ -69,9 +77,9 @@ async function loginController(req,res){
         })
     }
 
-    const hash = crypto.createHash('sha256').update(password).digest("hex")
+    // const hash = crypto.createHash('sha256').update(password).digest("hex")
 
-    const isPasswordCorrect = hash == user.password
+    const isPasswordCorrect = await bcrypt.compare(password,user.password)
     if(!isPasswordCorrect){
         return res.status(409).json({
             message:"password invalid "
@@ -101,6 +109,8 @@ async function loginController(req,res){
     
 
     }
+
+
 
     module.exports = {
         registerController,

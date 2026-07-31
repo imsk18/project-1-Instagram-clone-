@@ -1,6 +1,8 @@
 const postModel = require('../models/post.model')
 const ImageKit = require("@imagekit/nodejs");
-const {toFile} = require('@imagekit/nodejs')
+const {toFile} = require('@imagekit/nodejs');
+const jwt = require('jsonwebtoken')
+
 
 
 
@@ -15,12 +17,37 @@ const imageKit = new ImageKit({
     // const {caption,imgUrl}
     console.log(req.body, req.file);
 
+    const token = req.cookies.token
+
+    if(!token){
+        return res.status(400).json({
+            message:"token not provided, unauthorized access"
+        })
+    }
+
+    const decoded = jwt.verify(token,process.env.JWT_SECRET)
+    console.log(decoded);
+    
+
     const file = await imageKit.files.upload({
         file: await toFile(Buffer.from(req.file.buffer),"file"),
         fileName:"image"
 
     })
     res.send(file)
+
+    const post = await postModel.create({
+        caption:req.body.caption,
+        imgUrl: file.url,
+        user: decoded.id
+
+
+    })
+
+    res.status(201).json({
+        message:"post create successfully !",
+        post
+    })
     
 
 }

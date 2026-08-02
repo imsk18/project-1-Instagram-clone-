@@ -14,28 +14,6 @@ const imageKit = new ImageKit({
     // const {caption,imgUrl}
     console.log(req.body, req.file);
 
-    const token = req.cookies.token
-
-    if(!token){
-        return res.status(400).json({
-            message:"token not provided, unauthorized access"
-        })
-    }
-
-    const decode = null;
-
-    try{
-        decoded = jwt.verify(token,process.env.JWT_SECRET)
-    }catch(err){
-        return res.status(400).json({
-            message:"user not authorize"
-        })
-    }
-
-    
-    console.log(decoded);
-    
-
     const file = await imageKit.files.upload({
         file: await toFile(Buffer.from(req.file.buffer),"file"),
         fileName: "image",
@@ -47,7 +25,7 @@ const imageKit = new ImageKit({
     const post = await postModel.create({
         caption:req.body.caption,
         imgUrl: file.url,
-        user: decoded.id
+        user: req.user.id
 
 
     })
@@ -62,19 +40,8 @@ const imageKit = new ImageKit({
 
 
 async function getPostController(req,res){
-    const token = req.cookies.token
-
-    let decoded;
-    
-
-    try{
-        decoded = jwt.verify(token,process.env.JWT_SECRET)
-    } catch(err){
-       return res.status(401).json({
-            message:"invalid token"
-        })
-    }
-     const userId = decoded.id
+   
+     const userId = req.user.id
     const post = await postModel.find({
        user: userId
 
@@ -90,20 +57,12 @@ async function getPostController(req,res){
 
 
 async function getPostDetailsController(req,res){
-    const token = req.cookies.token
-    if(!token){
-        return res.status(401).json({message:"token not found"})
-    }
-     let decoded;
+  
 
-     try{
-        decoded = jwt.verify(token,process.env.JWT_SECRET)
-     }catch(err){
-        return res.status(401).json({message:"invalid token"})
-     }
-
-     const userId = decoded.id
+     const userId = req.user.id
      const postId = req.params.postId
+     console.log(postId);
+     
 
      const post = await postModel.findById(postId)
 
@@ -111,7 +70,7 @@ async function getPostDetailsController(req,res){
         return res.status(404).json({message:"post not found"})
      }
 
-     const isValidUser = post.user === userId
+     const isValidUser = post.user.toString() === userId
 
      if(!isValidUser){
         return res.status(403).json({

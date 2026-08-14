@@ -113,8 +113,20 @@ async function loginController(req,res){
     }
 
 
+ async function getMeController(req,res){
+    const userId = req.user.id
+    const user = await userModel.findById(userId)
+    res.status(200).json({
+        message:"user get successfully !",
+        user
+
+    })
+ }   
+
+
 
     module.exports = {
         registerController,
-        loginController
+        loginController,
+        getMeController
     }

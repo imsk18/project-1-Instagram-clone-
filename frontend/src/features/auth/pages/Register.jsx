@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import {Link} from 'react-router'
-import axios from 'axios'
+// import axios from 'axios'
 
 
 const Register = () => {
@@ -12,20 +12,20 @@ const Register = () => {
      e.preventDefault()
   
 
-   const response = await axios.post("http://localhost:3000/api/auth/register",{
-      username,
-      email,
-      password
-      },
-      {
-        withCredentials:true
+  //  const response = await axios.post("http://localhost:3000/api/auth/register",{
+  //     username,
+  //     email,
+  //     password
+  //     },
+  //     {
+  //       withCredentials:true
 
-      })
+  //     })
 
     //     console.log(username);
     //  console.log(email);
     //  console.log(password);
-      console.log(response.data)
+      // console.log(response.data)
      
 
   }

@@ -1,5 +1,7 @@
 import React, { useState } from 'react'
 import {Link} from 'react-router'
+import { useAuth } from '../hooks/use.auth'
+import { useNavigate } from 'react-router'
 // import axios from 'axios'
 
 
@@ -7,6 +9,8 @@ const Register = () => {
     const [username, setUsername] = useState("")
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
+    const {handleRegister} = useAuth()
+    const navigate = useNavigate()
 
    async function handleSubmit(e){
      e.preventDefault()
@@ -26,6 +30,13 @@ const Register = () => {
     //  console.log(email);
     //  console.log(password);
       // console.log(response.data)
+
+      handleRegister(username,email,password)
+      .then(res =>{
+        console.log(res);
+        
+      })
+      navigate("/")
      
 
   }

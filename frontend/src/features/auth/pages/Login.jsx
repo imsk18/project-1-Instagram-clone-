@@ -40,7 +40,7 @@ const Login = () => {
     
   }
   return (
-    <main>
+    <main className='login-page'>
       
       <div className="form-container">
         <h1>login</h1>

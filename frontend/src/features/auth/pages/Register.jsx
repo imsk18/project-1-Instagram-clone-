@@ -42,7 +42,7 @@ const Register = () => {
   }
 
   return (
-    <main>
+    <main className='register-page'>
       
       <div className="form-container">
         <h1>Register</h1>

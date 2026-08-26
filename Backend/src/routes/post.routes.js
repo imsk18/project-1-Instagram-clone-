@@ -14,6 +14,8 @@ postRouter.get("/details/posts/:postId",identifyUser,postController.getPostDetai
 
 postRouter.post('/like/:postId', identifyUser,postController.postLikeController)
 
+postRouter.get("/feed",identifyUser,postController.getFeedController)
+
 
 
 
